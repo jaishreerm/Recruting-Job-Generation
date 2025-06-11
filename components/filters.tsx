@@ -1,10 +1,57 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-
-export default function Filters({ label, availableOptions }: { label: string, availableOptions: string[] }) {
+export default function Filters({ label, selected, onSelectedChange }: { label: string, selected: string[], onSelectedChange: (selected: string[])=>void}) {
   const [isOption, setIsoption] = useState<boolean>(false);
-  const [options, setOptions] = useState<string[]>(availableOptions);
+  const [options, setOptions] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string[]>([]);
+  const [query, setquery] = useState<string>("");
+  const endpointMap: { [key: string]: string } = {
+    "Job Titles":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_job_title_suggestions",
+    "Companies":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_company_suggestions",
+    "Locations":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_region_suggestions",
+    "Seniority Level":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_seniority_level",
+    "Postal Code":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_postal_code_suggestions",
+    "Years":
+      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_years_in",
+  };
+
+  useEffect(() => {
+    const handleGetOptions = async () => {
+      try {
+        const res = await axios.post(
+          endpointMap[label],
+          { query: query },
+          {
+            headers: {
+              "x-rapidapi-key":
+                "31b2d865d2mshbae4e3d83ed7b3ep1a7793jsn925e29e546aa",
+              "x-rapidapi-host":
+                "linkedin-sales-navigator-no-cookies-required.p.rapidapi.com",
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Response for ", label, "from rapidapi: ", res.data);
+        setOptions(res.data.data.map((item) => item.displayValue));
+        console.log(options);
+      } catch (error) {
+        console.log(
+          "Error in fetching ",
+          label,
+          " details from rapidapi: ",
+          error
+        );
+      }
+    };
+
+    handleGetOptions();
+  }, [query, label]);
 
   return (
     // <div>
@@ -60,6 +107,8 @@ export default function Filters({ label, availableOptions }: { label: string, av
           className="w-full bg-[#232323] text-gray-200 border border-[#353535] rounded px-3 py-2 pr-8 appearance-none focus:outline-none"
           onClick={() => setIsoption(!isOption)}
           placeholder=""
+          value={query}
+          onChange={(e) => setquery(e.target.value)}
         />
         {isOption && (
           <ul>
@@ -74,6 +123,7 @@ export default function Filters({ label, availableOptions }: { label: string, av
                   ]);
                   setOptions(options.filter((f) => f != option));
                   setIsoption(false);
+                  onSelectedChange([...selected, option]);
                 }}
               >
                 {option}

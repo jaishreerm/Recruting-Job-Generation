@@ -11,16 +11,24 @@ interface OptionType {
 export default function Candidates() {
   const [addfilter, setAddfilter] = useState<boolean>(false);
   const [addfiltervalue, setAddfiltervalue] = useState("Search Filter");
-  const options: OptionType ={
-    "Current Title": ["abc", "def"], 
-    "Past Title": ["ghi", "jkl"], 
-    "Postal Code": ["123456", "654321"], 
-    "City": ["Banglore", "Hyderabad"]};
+  // const options: OptionType ={
+  //   "Current Title": ["abc", "def"], 
+  //   "Past Title": ["ghi", "jkl"], 
+  //   "Postal Code": ["123456", "654321"], 
+  //   "City": ["Banglore", "Hyderabad"]};
+  const options: OptionType = {
+    "Job Titles": [],
+    "Companies": [],
+    "Locations": [],
+    "Seniority Level": [],
+    "Postal Code": [],
+    "Years": []
+  }
   const [filterOptions, setFilterOptions] = useState<string[]>(Object.keys(options));
-  const [filters, setFilters] = useState<string[]>([]);
+  const [filters, setFilters] = useState<{[key: string]: string[]}>({});
 
   function handleReset(){
-    setFilters([]);
+    setFilters({});
     setFilterOptions(Object.keys(options));
     setAddfiltervalue("Search Filter");
     setAddfilter(false);
@@ -60,7 +68,11 @@ export default function Candidates() {
                   onClick={() => {
                     setAddfiltervalue(option);
                     setAddfilter(false);
-                    setFilters((filter)=>[...filter, option]);
+                    // setFilters((filter)=>[...filter, option]);
+                    setFilters((prev)=>({
+                      ...prev,
+                      [option]: []
+                    }));
                     // options.filter((f: string)=>f!=option);
                     setFilterOptions(filterOptions.filter((x: string)=>x!=option));
                   }}
@@ -71,12 +83,26 @@ export default function Candidates() {
             </ul>
           )}
         </div>
-        {filters.map((filter)=>(
+        {Object.keys(filters).map((filter)=>(
             <div key={filter}>
-                <Filters label={filter} availableOptions={options[filter]} />
+                <Filters label={filter} selected={filters[filter]} onSelectedChange={(selected)=>setFilters((prev)=>({...prev, [filter]: selected}))} />
             </div>
         ))}
       </aside>
+
+      <main className="flex-1 flex flex-col p-6">
+        {/* <div className="flex items-center justify-end mb-2"> */}
+        <div className="fixed top-4 right-4 z-50">
+          <button className="px-5 py-1 rounded-md bg-[#ededed] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
+            Done
+          </button>
+          <div className="grid grid-rows-7 gap-4 mt-2">
+            {[1, 2, 3].map((cand, i)=>(
+              <div key={i} className="w-full h-16 rounded-lg bg-[#242526] border border-[#353535]"></div>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
     // <div className="w-full h-screen flex bg-gradient-to-br from-[#232323] to-[#18191a] text-gray-200 font-sans">
     //   {/* Left Panel: Filters */}
@@ -260,12 +286,12 @@ export default function Candidates() {
       // {/* Right Panel: Candidates List */}
       // <main className="flex-1 flex flex-col p-6">
       //   {/* Top Bar */}
-      //   <div className="flex items-center justify-between mb-2">
+      //   <div className="<flex items-center justify-between mb-2>">
       //     <div></div>
       //     <button className="px-5 py-1 rounded-md bg-[#ededed] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
       //       Done
       //     </button>
-      //   </div>
+      //   </flex>
       //   {/* Candidate List Placeholder */}
       //   <div className="flex-1 grid grid-rows-7 gap-4 mt-2">
       //     {/* Empty candidate cards as placeholders */}
