@@ -1,12 +1,9 @@
 import { useState } from "react";
 
-export default function Filters({ label }: { label: string }) {
+
+export default function Filters({ label, availableOptions }: { label: string, availableOptions: string[] }) {
   const [isOption, setIsoption] = useState<boolean>(false);
-  const [options, setOptions] = useState<string[]>([
-    "check",
-    "testing",
-    "practice",
-  ]);
+  const [options, setOptions] = useState<string[]>(availableOptions);
   const [selectedOption, setSelectedOption] = useState<string[]>([]);
 
   return (
@@ -58,42 +55,54 @@ export default function Filters({ label }: { label: string }) {
     <div className="mb-2 relative">
       <label className="text-gray-300 text-sm font-medium">{label}</label>
       {/* <div className="flex items-start gap-4 mt-1"> */}
-        <div className="relative w-48">
-          <input
-            className="w-full bg-[#232323] text-gray-200 border border-[#353535] rounded px-3 py-2 pr-8 appearance-none focus:outline-none"
-            onClick={() => setIsoption(true)}
-            placeholder=""
-          />
-          {isOption && (
-            <ul>
-              {options.map((option) => (
-                <li
-                  key={label}
-                  className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
-                  onClick={() => {
-                    setSelectedOption((selectOption) => [
-                      ...selectOption,
-                      option,
-                    ]);
-                    setOptions(options.filter((f) => f != option));
-                  }}
-                >
-                  {option}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {selectedOption.map((option) => (
-            <span key={option} className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center">
-              {option}
-              <button className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold">
-                 &times;
-              </button>
-            </span>
-          ))}
-        </div>
+      <div className="relative w-48">
+        <input
+          className="w-full bg-[#232323] text-gray-200 border border-[#353535] rounded px-3 py-2 pr-8 appearance-none focus:outline-none"
+          onClick={() => setIsoption(!isOption)}
+          placeholder=""
+        />
+        {isOption && (
+          <ul>
+            {options.map((option) => (
+              <li
+                key={label}
+                className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
+                onClick={() => {
+                  setSelectedOption((selectOption) => [
+                    ...selectOption,
+                    option,
+                  ]);
+                  setOptions(options.filter((f) => f != option));
+                  setIsoption(false);
+                }}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {selectedOption.map((option) => (
+          <span
+            key={option}
+            className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center"
+          >
+            {option}
+            <button
+              className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold"
+              onClick={() => {
+                setSelectedOption(
+                  selectedOption.filter((soption) => soption != option)
+                );
+                setOptions((prev) => [...prev, option]);
+              }}
+            >
+              &times;
+            </button>
+          </span>
+        ))}
+      </div>
       {/* </div> */}
     </div>
   );

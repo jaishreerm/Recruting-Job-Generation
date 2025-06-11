@@ -4,20 +4,40 @@ import Filters from "@/components/filters";
 // import Filters from "@/components/filters";
 import { useState } from "react";
 
+interface OptionType {
+  [key: string]: string[]
+}
+
 export default function Candidates() {
   const [addfilter, setAddfilter] = useState<boolean>(false);
   const [addfiltervalue, setAddfiltervalue] = useState("Search Filter");
-  const [options, setOptions] = useState<string[]>(["Current Title", "Past Title", "Postal Code", "City"]);
+  const options: OptionType ={
+    "Current Title": ["abc", "def"], 
+    "Past Title": ["ghi", "jkl"], 
+    "Postal Code": ["123456", "654321"], 
+    "City": ["Banglore", "Hyderabad"]};
+  const [filterOptions, setFilterOptions] = useState<string[]>(Object.keys(options));
   const [filters, setFilters] = useState<string[]>([]);
+
+  function handleReset(){
+    setFilters([]);
+    setFilterOptions(Object.keys(options));
+    setAddfiltervalue("Search Filter");
+    setAddfilter(false);
+  }
+
+  const handleApplyFilters = async () => {
+    console.log("Clicked")
+  }
 
   return (
     <div className="w-full h-screen flex bg-gradient-to-br from-[#232323] to-[#18191a] text-gray-200 font-sans">
       <aside className="w-[340px] min-h-screen bg-black/60 border-r border-[#353535] px-6 py-8 flex flex-col gap-6">
         <div className="flex gap-3 mb-3">
-          <button className="flex-1 py-2 rounded-lg bg-[#d3d3d3] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#bdbdbd] transition">
+          <button onClick={handleReset} className="flex-1 py-2 rounded-lg bg-[#d3d3d3] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#bdbdbd] transition">
             Reset
           </button>
-          <button className="flex-1 py-2 rounded-lg bg-[#ededed] text-black font-semibold shadow shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
+          <button onClick={handleApplyFilters} className="flex-1 py-2 rounded-lg bg-[#ededed] text-black font-semibold shadow shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
             Apply Filters
           </button>
         </div>
@@ -27,13 +47,13 @@ export default function Candidates() {
           </label>
           <input
             placeholder={addfiltervalue}
-            value={addfiltervalue}
+            // value={addfiltervalue}
             className="w-full bg-[#232323] text-gray-200 border border-[#353535] rounded px-3 py-2 pr-8 appearance-none focus:outline-none"
-            onClick={() => setAddfilter(true)}
+            onClick={() => setAddfilter(!addfilter)}
           />
           {addfilter && (
             <ul>
-              {options.map((option: string) => (
+              {filterOptions.map((option: string) => (
                 <li
                   key={option}
                   className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
@@ -42,7 +62,7 @@ export default function Candidates() {
                     setAddfilter(false);
                     setFilters((filter)=>[...filter, option]);
                     // options.filter((f: string)=>f!=option);
-                    setOptions(options.filter((f: string)=>f!=option));
+                    setFilterOptions(filterOptions.filter((x: string)=>x!=option));
                   }}
                 >
                   {option}
@@ -53,7 +73,7 @@ export default function Candidates() {
         </div>
         {filters.map((filter)=>(
             <div key={filter}>
-                <Filters label={filter} />
+                <Filters label={filter} availableOptions={options[filter]} />
             </div>
         ))}
       </aside>
@@ -237,37 +257,37 @@ export default function Candidates() {
     //     </div>
     //   </aside>
 
-    //   {/* Right Panel: Candidates List */}
-    //   <main className="flex-1 flex flex-col p-6">
-    //     {/* Top Bar */}
-    //     <div className="flex items-center justify-between mb-2">
-    //       <div></div>
-    //       <button className="px-5 py-1 rounded-md bg-[#ededed] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
-    //         Done
-    //       </button>
-    //     </div>
-    //     {/* Candidate List Placeholder */}
-    //     <div className="flex-1 grid grid-rows-7 gap-4 mt-2">
-    //       {/* Empty candidate cards as placeholders */}
-    //       {[...Array(7)].map((_, i) => (
-    //         <div
-    //           key={i}
-    //           className="w-full h-16 rounded-lg bg-[#242526] border border-[#353535]"
-    //         ></div>
-    //       ))}
-    //     </div>
-    //     {/* Footer */}
-    //     <div className="flex items-center justify-between pt-4 border-t border-[#353535] mt-2">
-    //       <span className="text-gray-400 text-sm">2,560 Profiles Found</span>
-    //       <div className="flex items-center gap-2">
-    //         <button className="w-8 h-8 flex items-center justify-center rounded bg-[#232323] text-gray-300 border border-[#353535]">
-    //           1
-    //         </button>
-    //         <span className="text-gray-400">2 ... 499</span>
-    //         <span className="text-gray-400 text-sm">25 per page</span>
-    //       </div>
-    //     </div>
-    //   </main>
+      // {/* Right Panel: Candidates List */}
+      // <main className="flex-1 flex flex-col p-6">
+      //   {/* Top Bar */}
+      //   <div className="flex items-center justify-between mb-2">
+      //     <div></div>
+      //     <button className="px-5 py-1 rounded-md bg-[#ededed] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition">
+      //       Done
+      //     </button>
+      //   </div>
+      //   {/* Candidate List Placeholder */}
+      //   <div className="flex-1 grid grid-rows-7 gap-4 mt-2">
+      //     {/* Empty candidate cards as placeholders */}
+      //     {[...Array(7)].map((_, i) => (
+      //       <div
+      //         key={i}
+      //         className="w-full h-16 rounded-lg bg-[#242526] border border-[#353535]"
+      //       ></div>
+      //     ))}
+      //   </div>
+      //   {/* Footer */}
+      //   <div className="flex items-center justify-between pt-4 border-t border-[#353535] mt-2">
+      //     <span className="text-gray-400 text-sm">2,560 Profiles Found</span>
+      //     <div className="flex items-center gap-2">
+      //       <button className="w-8 h-8 flex items-center justify-center rounded bg-[#232323] text-gray-300 border border-[#353535]">
+      //         1
+      //       </button>
+      //       <span className="text-gray-400">2 ... 499</span>
+      //       <span className="text-gray-400 text-sm">25 per page</span>
+      //     </div>
+      //   </div>
+      // </main>
     // </div>
   );
 }
