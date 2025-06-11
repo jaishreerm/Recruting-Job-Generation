@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export default function Filters({ label, selected, onSelectedChange }: { label: string, selected: string[], onSelectedChange: (selected: string[])=>void}) {
+export default function Filters({ label, selected, onSelectedChange }: { label: string, selected: {id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[], onSelectedChange: (selected: {id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[])=>void}) {
   const [isOption, setIsoption] = useState<boolean>(false);
-  const [options, setOptions] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState<string[]>([]);
+  const [options, setOptions] = useState<{id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[]>([]);
+  const [selectedOption, setSelectedOption] = useState<{id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[]>([]);
   const [query, setquery] = useState<string>("");
   const endpointMap: { [key: string]: string } = {
     "Job Titles":
@@ -38,7 +38,7 @@ export default function Filters({ label, selected, onSelectedChange }: { label: 
           }
         );
         console.log("Response for ", label, "from rapidapi: ", res.data);
-        setOptions(res.data.data.map((item) => item.displayValue));
+        setOptions(res.data.data.map((item) => ({id: item.id, text: item.displayValue,selectionType: "INCLUDED"})));
         console.log(options);
       } catch (error) {
         console.log(
@@ -114,19 +114,19 @@ export default function Filters({ label, selected, onSelectedChange }: { label: 
           <ul>
             {options.map((option) => (
               <li
-                key={label}
+                key={option.id}
                 className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
                 onClick={() => {
                   setSelectedOption((selectOption) => [
                     ...selectOption,
-                    option,
+                    {id: option.id, text: option.text, selectionType: option.selectionType},
                   ]);
                   setOptions(options.filter((f) => f != option));
                   setIsoption(false);
-                  onSelectedChange([...selected, option]);
+                  onSelectedChange([...selected, {id: option.id, text: option.text, selectionType: "INCLUDED"}]);
                 }}
               >
-                {option}
+                {option.text}
               </li>
             ))}
           </ul>
@@ -135,10 +135,10 @@ export default function Filters({ label, selected, onSelectedChange }: { label: 
       <div className="flex flex-wrap gap-2 mt-2">
         {selectedOption.map((option) => (
           <span
-            key={option}
+            key={option.id}
             className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center"
           >
-            {option}
+            {option.text}
             <button
               className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold"
               onClick={() => {

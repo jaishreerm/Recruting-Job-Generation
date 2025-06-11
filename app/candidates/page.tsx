@@ -1,11 +1,24 @@
 "use client";
 
 import Filters from "@/components/filters";
+import axios from "axios";
 // import Filters from "@/components/filters";
 import { useState } from "react";
 
 interface OptionType {
   [key: string]: string[]
+}
+
+interface FinalFilterValueType {
+  id: string,
+  text: string,
+  selectionType: "INCLUDED" | "EXCLUDED"
+}
+
+interface FinalFilterType {
+  type: string,
+  values: FinalFilterValueType[],
+  selectedSubFilter: number,
 }
 
 export default function Candidates() {
@@ -25,7 +38,8 @@ export default function Candidates() {
     "Years": []
   }
   const [filterOptions, setFilterOptions] = useState<string[]>(Object.keys(options));
-  const [filters, setFilters] = useState<{[key: string]: string[]}>({});
+  const [filters, setFilters] = useState<{[key: string]: FinalFilterValueType[]}>({});
+  const [finalFilters, setFinalFilters]=useState<FinalFilterType[]>([]);
 
   function handleReset(){
     setFilters({});
@@ -35,7 +49,21 @@ export default function Candidates() {
   }
 
   const handleApplyFilters = async () => {
-    console.log("Clicked")
+    try {
+      const newFilters: FinalFilterType[]=Object.entries(filters).filter(([value])=>value.length>0).map(([label, value])=>({type: label, values: value, selectedSubFilter: 50}));
+      setFinalFilters(newFilters);
+      console.log("Final Filters: ", finalFilters);
+      const res=await axios.post('https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/premium_search_person', {
+        data: {
+          account_number: 1,
+          page: 1,
+          filters: newFilters
+        }
+      });
+      console.log("Response of candidate search: ", res);
+    } catch (error) {
+      console.log("Error in applying filter candidate search: ", error);
+    }
   }
 
   return (
