@@ -1,0 +1,1 @@
+export const geminiPrompt = "You are an expert technical recruiter. Based on the following user input, generate a detailed, professional job de"
