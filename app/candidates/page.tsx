@@ -3,7 +3,7 @@
 import Filters from "@/components/filters";
 import axios from "axios";
 // import Filters from "@/components/filters";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface OptionType {
   [key: string]: string[]
@@ -19,6 +19,30 @@ interface FinalFilterType {
   type: string,
   values: FinalFilterValueType[],
   selectedSubFilter: number,
+}
+
+function geminiToFilterState(geminiFilters: {[key: string]: string | string[]}): {[key: string]: FinalFilterValueType[]} {
+  if (!geminiFilters) {
+    return {};
+  }
+  const result: {[key: string]: FinalFilterValueType[]} = {};
+  Object.entries(geminiFilters).forEach(([key, value])=>{
+    if (Array.isArray(value)) {
+      result[key] = value.map((v)=>({
+        id: v,
+        text: v,
+        selectionType: "INCLUDED"
+      }));
+    } else if (typeof value === "string" && value.trim()) {
+      result[key] = [{
+        id: value,
+        text: value,
+        selectionType: "INCLUDED"
+      }];
+    }
+  });
+
+  return result;
 }
 
 export default function Candidates() {
@@ -40,6 +64,15 @@ export default function Candidates() {
   const [filterOptions, setFilterOptions] = useState<string[]>(Object.keys(options));
   const [filters, setFilters] = useState<{[key: string]: FinalFilterValueType[]}>({});
   const [finalFilters, setFinalFilters]=useState<FinalFilterType[]>([]);
+  // const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(()=>{
+    const geminiFilters = JSON.parse(localStorage.getItem("filters") || "{}");
+    const initialFilters = geminiToFilterState(geminiFilters);
+    setFilters(initialFilters);
+    const usedKeys = Object.keys(initialFilters);
+    setFilterOptions((prev)=>prev.filter((opt)=>!usedKeys.includes(opt)));
+  }, []);
 
   function handleReset(){
     setFilters({});
