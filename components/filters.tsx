@@ -1,129 +1,88 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export default function Filters({ label, selected, onSelectedChange }: { label: string, selected: {id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[], onSelectedChange: (selected: {id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[])=>void}) {
-  const [isOption, setIsoption] = useState<boolean>(false);
-  const [options, setOptions] = useState<{id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[]>([]);
-  const [selectedOption, setSelectedOption] = useState<{id: string, text: string, selectionType: "INCLUDED" | "EXCLUDED"}[]>([]);
-  const [query, setquery] = useState<string>("");
+export default function Filters({
+  label,
+  selected,
+  onSelectedChange,
+}: {
+  label: string;
+  selected: { id: string; text: string; selectionType: "INCLUDED" | "EXCLUDED" }[];
+  onSelectedChange: (
+    selected: { id: string; text: string; selectionType: "INCLUDED" | "EXCLUDED" }[]
+  ) => void;
+}) {
+  const [isOption, setIsoption] = useState(false);
+  const [options, setOptions] = useState<{ id: string; text: string; selectionType: "INCLUDED" | "EXCLUDED" }[]>([]);
+  const [selectedOption, setSelectedOption] = useState<typeof options>([]);
+  const [query, setquery] = useState("");
+
   const endpointMap: { [key: string]: string } = {
-    "Job Titles":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_job_title_suggestions",
-    "Companies":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_company_suggestions",
-    "Locations":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_region_suggestions",
-    "Seniority Level":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_seniority_level",
-    "Postal Code":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_postal_code_suggestions",
-    "Years":
-      "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_years_in",
+    "Job Titles": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_job_title_suggestions",
+    "Companies": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_company_suggestions",
+    "Locations": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_region_suggestions",
+    "Seniority Level": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_seniority_level",
+    "Postal Code": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_geography_location_postal_code_suggestions",
+    "Years": "https://linkedin-sales-navigator-no-cookies-required.p.rapidapi.com/filter_years_in",
   };
 
   useEffect(() => {
-    const handleGetOptions = async () => {
-      try {
-        const res = await axios.post(
-          endpointMap[label],
-          { query: query },
-          {
-            headers: {
-              "x-rapidapi-key":
-                "31b2d865d2mshbae4e3d83ed7b3ep1a7793jsn925e29e546aa",
-              "x-rapidapi-host":
-                "linkedin-sales-navigator-no-cookies-required.p.rapidapi.com",
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("Response for ", label, "from rapidapi: ", res.data);
-        setOptions(res.data.data.map((item) => ({id: item.id, text: item.displayValue,selectionType: "INCLUDED"})));
-        console.log(options);
-      } catch (error) {
-        console.log(
-          "Error in fetching ",
-          label,
-          " details from rapidapi: ",
-          error
-        );
-      }
-    };
+    const delayDebounce = setTimeout(() => {
+      const handleGetOptions = async () => {
+        if (!query) return;
 
-    handleGetOptions();
+        try {
+          const res = await axios.post(
+            endpointMap[label],
+            { query },
+            {
+              headers: {
+                "x-rapidapi-key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY!,
+                "x-rapidapi-host": process.env.NEXT_PUBLIC_RAPIDAPI_HOST!,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          console.log("Response for ", label, "from RapidAPI:", res.data);
+          setOptions(res.data.data.map((item: any) => ({
+            id: item.id,
+            text: item.displayValue,
+            selectionType: "INCLUDED",
+          })));
+        } catch (error) {
+          console.error("Error fetching", label, "from RapidAPI:", error);
+        }
+      };
+
+      handleGetOptions();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
   }, [query, label]);
 
   return (
-    // <div>
-    //   <label className="text-gray-400 text-xs mb-1 block">{label}</label>
-    //   <div className="flex flex-wrap gap-2">
-    //     <span className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center">
-    //       Customer Success
-    //       <button className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold">
-    //         &times;
-    //       </button>
-    //     </span>
-    //     <span className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center">
-    //       Customer Success and Manager
-    //       <button className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold">
-    //         &times;
-    //       </button>
-    //     </span>
-    //   </div>
-    // </div>
-    // <div>
-
-    //     {/* {addfilter && (
-    //       <ul>
-    //         {options.map((option: string) => (
-    //           <li
-    //             key={option}
-    //             className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
-    //             onClick={() => {
-    //               setAddfiltervalue(option);
-    //               setAddfilter(false);
-    //               setFilters((filter) => [...filter, option]);
-    //               // options.filter((f: string)=>f!=option);
-    //               setOptions(options.filter((f: string) => f != option));
-    //             }}
-    //           >
-    //             {option}
-    //           </li>
-    //         ))}
-    //       </ul>
-    //     )} */}
-    //   </div>
-    //   {/* {filters.map((filter) => (
-    //     <div key={filter}>
-    //       <Filters label={filter} />
-    //     </div>
-    //   ))} */}
-    // </div>
-    <div className="mb-2 relative">
-      <label className="text-gray-300 text-sm font-medium">{label}</label>
-      {/* <div className="flex items-start gap-4 mt-1"> */}
-      <div className="relative w-48">
+    <div className="mb-6 relative">
+      <label className="text-sm font-medium text-white block mb-1">{label}</label>
+      <div className="relative w-full max-w-sm">
         <input
-          className="w-full bg-[#232323] text-gray-200 border border-[#353535] rounded px-3 py-2 pr-8 appearance-none focus:outline-none"
+          className="w-full bg-[#262626] text-white border border-[#3a3a3a] rounded-lg px-3 py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#4b4b4b]"
           onClick={() => setIsoption(!isOption)}
-          placeholder=""
+          placeholder={`Search ${label}`}
           value={query}
           onChange={(e) => setquery(e.target.value)}
         />
         {isOption && (
-          <ul>
+          <ul className="absolute z-20 w-full mt-1 bg-[#1f1f1f] border border-[#2a2a2a] rounded-lg shadow-lg max-h-52 overflow-auto">
             {options.map((option) => (
               <li
                 key={option.id}
-                className="px-4 py-2 hover:bg-[#232323] text-gray-100 text-sm-cursor-pointer transition"
+                className="px-4 py-2 hover:bg-[#333333] text-gray-200 text-sm cursor-pointer transition duration-150 ease-in-out"
                 onClick={() => {
-                  setSelectedOption((selectOption) => [
-                    ...selectOption,
-                    {id: option.id, text: option.text, selectionType: option.selectionType},
-                  ]);
-                  setOptions(options.filter((f) => f != option));
+                  setSelectedOption((prev) => [...prev, option]);
+                  setOptions(options.filter((f) => f.id !== option.id));
                   setIsoption(false);
-                  onSelectedChange([...selected, {id: option.id, text: option.text, selectionType: "INCLUDED"}]);
+                  onSelectedChange([...selected, option]);
                 }}
               >
                 {option.text}
@@ -132,19 +91,18 @@ export default function Filters({ label, selected, onSelectedChange }: { label: 
           </ul>
         )}
       </div>
-      <div className="flex flex-wrap gap-2 mt-2">
+
+      <div className="flex flex-wrap gap-2 mt-3">
         {selectedOption.map((option) => (
           <span
             key={option.id}
-            className="bg-[#232323] text-gray-100 px-3 py-1 rounded-full text-xs flex items-center"
+            className="bg-[#2d2d2d] text-white px-3 py-1 rounded-full text-sm flex items-center shadow-sm border border-[#444]"
           >
             {option.text}
             <button
-              className="ml-2 text-gray-400 hover:text-red-500 text-base font-bold"
+              className="ml-2 text-gray-400 hover:text-red-400 font-bold transition duration-150 ease-in-out cursor-pointer"
               onClick={() => {
-                setSelectedOption(
-                  selectedOption.filter((soption) => soption != option)
-                );
+                setSelectedOption(selectedOption.filter((s) => s.id !== option.id));
                 setOptions((prev) => [...prev, option]);
               }}
             >
@@ -153,7 +111,6 @@ export default function Filters({ label, selected, onSelectedChange }: { label: 
           </span>
         ))}
       </div>
-      {/* </div> */}
     </div>
   );
 }

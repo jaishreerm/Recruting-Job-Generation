@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,23 +8,28 @@ export default function JobRequirementsStep() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#15171a] to-[#18191a] flex flex-col items-center justify-center">
-      <div className="bg-[#18191a] border border-[#232323] rounded-xl shadow-lg px-10 py-10 flex flex-col items-center w-full max-w-xl">
-        <h2 className="text-lg font-semibold text-gray-100 mb-4 text-center">
-          Describe your Job Requirements
+    <div className="min-h-screen bg-gradient-to-br from-[#0f0f0f] to-[#1c1c1c] flex items-center justify-center px-4">
+      <div className="bg-[#1a1a1a] border border-[#2c2c2c] rounded-2xl shadow-xl px-10 py-12 w-full max-w-xl">
+        <h2 className="text-3xl font-bold text-white text-center mb-6">
+          Describe Your Job Requirements!
         </h2>
+
         <textarea
-          className="w-full h-32 bg-[#232323] text-gray-100 rounded-md border border-[#232323] p-3 mb-6 resize-none focus:outline-none focus:ring-2 focus:ring-[#353535]"
+          className="w-full h-40 bg-[#262626] text-white placeholder-gray-400 rounded-lg border border-[#3d3d3d] p-4 text-base shadow-inner focus:outline-none focus:ring-2 focus:ring-[#4f4f4f] transition duration-150 ease-in-out"
           value={prompt}
-          onChange={e => {setPrompt(e.target.value);localStorage.setItem("prompt", e.target.value)}}
-          placeholder="Founding Frontend Engineer with 3+ years of experience, with Typescript"
+          onChange={e => {
+            setPrompt(e.target.value);
+            localStorage.setItem("prompt", e.target.value);
+          }}
+          placeholder="E.g. Frontend Developer with 3+ years of hands-on experience using TypeScript, React, HTML, Canvas and TailwindCSS."
         />
-        <div className="w-full flex justify-end">
+
+        <div className="flex justify-end mt-6">
           <button
-            className="px-6 py-2 rounded-md bg-[#ededed] text-black font-semibold shadow-inner border border-[#bdbdbd] hover:bg-[#d6d6d6] transition"
-            onClick={()=>router.push("/job")}
+            className="px-6 py-3 bg-gradient-to-r from-[#f1f1f1] to-[#dcdcdc] hover:from-[#ffffff] hover:to-[#e0e0e0] text-black font-semibold rounded-lg shadow-md border border-[#cfcfcf] transition duration-200 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            onClick={() => router.push("/job")}
           >
-            Continue
+            Continue →
           </button>
         </div>
       </div>
